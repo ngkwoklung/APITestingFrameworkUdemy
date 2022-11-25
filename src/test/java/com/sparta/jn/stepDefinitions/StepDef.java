@@ -1,5 +1,6 @@
 package com.sparta.jn.stepDefinitions;
 
+import com.sparta.jn.APIResources;
 import com.sparta.jn.TestDataBuild;
 import com.sparta.jn.Utils;
 import com.sparta.jn.pojo.AddPlace;
@@ -29,21 +30,22 @@ public class StepDef extends Utils {
     ResponseSpecification responseSpecification;
     Response response;
     TestDataBuild data = new TestDataBuild();
-    @Given("Add Place Payload")
-    public void add_place_payload() throws FileNotFoundException {
+    @Given("Add Place Payload with {string} {string} {string}")
+    public void add_place_payload_with(String name, String language, String address) throws FileNotFoundException {
         requestSpecification = given().spec(requestSpecification())
-                .body(data.addPlacePayLoad());
+                .body(data.addPlacePayLoad(name, language, address));
     }
 
-    @When("user calls {string} with Post http request")
-    public void user_calls_with_post_http_request(String string) {
+    @When("user calls {string} with {string} http request")
+    public void user_calls_with_http_request(String resource, String string2) {
+        APIResources apiResource = APIResources.valueOf(resource);
         responseSpecification = new ResponseSpecBuilder()
                 .expectStatusCode(200)
                 .expectContentType(ContentType.JSON)
                 .build();
         response = requestSpecification.
                 when()
-                    .post("/maps/api/place/add/json").
+                    .post(apiResource.getResource()).
                 then()
                     .spec(responseSpecification)
                     .extract()
