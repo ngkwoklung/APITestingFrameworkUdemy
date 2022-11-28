@@ -5,6 +5,8 @@ import io.cucumber.junit.CucumberOptions;
 import org.junit.runner.RunWith;
 
 @RunWith(Cucumber.class)
-@CucumberOptions(features = "src/test/java/com/sparta/jn/features", glue = {"com.sparta.jn.stepDefinitions"})
+@CucumberOptions(features = "src/test/java/com/sparta/jn/features",
+        glue = {"com.sparta.jn.stepDefinitions"},
+        tags = "@AddPlace")
 public class TestRunner {
 }
