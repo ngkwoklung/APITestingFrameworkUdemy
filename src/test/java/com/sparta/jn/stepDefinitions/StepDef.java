@@ -30,6 +30,7 @@ public class StepDef extends Utils {
     ResponseSpecification responseSpecification;
     Response response;
     TestDataBuild data = new TestDataBuild();
+    static String placeId;
     @Given("Add Place Payload with {string} {string} {string}")
     public void add_place_payload_with(String name, String language, String address) throws FileNotFoundException {
         requestSpecification = given().spec(requestSpecification())
@@ -37,19 +38,19 @@ public class StepDef extends Utils {
     }
 
     @When("user calls {string} with {string} http request")
-    public void user_calls_with_http_request(String resource, String string2) {
+    public void user_calls_with_http_request(String resource, String method) {
         APIResources apiResource = APIResources.valueOf(resource);
+        System.out.println(apiResource.getResource());
         responseSpecification = new ResponseSpecBuilder()
                 .expectStatusCode(200)
                 .expectContentType(ContentType.JSON)
                 .build();
-        response = requestSpecification.
-                when()
-                    .post(apiResource.getResource()).
-                then()
-                    .spec(responseSpecification)
-                    .extract()
-                    .response();
+
+        if (method.equalsIgnoreCase("POST")) {
+            response = requestSpecification.when().post(apiResource.getResource());
+        } else if(method.equalsIgnoreCase("GET")) {
+            response = requestSpecification.when().get(apiResource.getResource());
+        }
     }
 
     @Then("the API call is success with status code {int}")
@@ -59,9 +60,22 @@ public class StepDef extends Utils {
 
     @Then("{string} in response is {string}")
     public void in_response_is(String expectedKey, String expectedValue) {
-        String strResp = response.asString();
-        JsonPath jsonPath = new JsonPath(strResp);
-        Assert.assertEquals(jsonPath.get(expectedKey).toString(), expectedValue);
+        Assert.assertEquals(getJsonPath(response, expectedKey), expectedValue);
+    }
+
+    @Then("verfy place_Id created maps to {string} using {string}")
+    public void verfy_place_id_created_maps_to_using(String expectedName, String resource) throws FileNotFoundException {
+
+        placeId = getJsonPath(response, "place_id");
+        requestSpecification = given().spec(requestSpecification()).queryParam("place_id", placeId);
+        user_calls_with_http_request(resource, "GET");
+        String actualName = getJsonPath(response, "name");
+        Assert.assertEquals(expectedName,actualName);
+    }
+
+    @Given("DeletePlace Payload")
+    public void delete_place_payload() throws FileNotFoundException {
+        requestSpecification = given().spec(requestSpecification()).body(data.deletePlacePayload(placeId));
     }
 
 }
