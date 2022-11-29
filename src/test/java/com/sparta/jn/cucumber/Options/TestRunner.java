@@ -6,6 +6,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(Cucumber.class)
 @CucumberOptions(features = "src/test/java/com/sparta/jn/features",
+        plugin = "json:target/jsonReports/cucumber-report.json",
         glue = {"com.sparta.jn.stepDefinitions"})
 //tags = "@DeletePlace"
 //mvn test -Dcucumber.filter.tags="@AddPlace" (for running in cmd line with tags)
